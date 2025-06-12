@@ -19,18 +19,17 @@ app.post('/get-quote', async (req, res) => {
   try {
     const { order } = req.body;
 
-    // Parcel2Go API call for quotes
-    const response = await axios.post('https://api.parcel2go.com/api/quotes', order, {
+    const response = await axios.post('https://sandbox.parcel2go.com/api/quotes', order, {
       headers: {
-        Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+        'Authorization': `Bearer ${process.env.PARCEL2GO_API_KEY}`, // make sure this is set
         'Content-Type': 'application/json',
       },
     });
 
     res.json(response.data);
   } catch (error) {
-    console.error('Error fetching quote:', error.message);
-    res.status(500).json({ error: 'Failed to get quote' });
+    console.error('Parcel2Go API Error:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to get quote', details: error.response?.data || error.message });
   }
 });
 
