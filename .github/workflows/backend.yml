@@ -1,0 +1,30 @@
+name: Deploy Backend to Railway
+
+on:
+  push:
+    paths:
+      - 'api/**'
+      - '.github/workflows/backend.yml'
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd api
+          npm install
+
+      - name: Deploy to Railway
+        run: railway up --service parcel2go-backend
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
