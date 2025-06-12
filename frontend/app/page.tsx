@@ -5,14 +5,14 @@ import axios from 'axios';
 
 export default function HomePage() {
   const [formData, setFormData] = useState({
-    collection: {
+    CollectionAddress: {
       Country: 'GBR',
       Property: '',
       Postcode: '',
       Town: '',
       VatStatus: 'Individual',
     },
-    delivery: {
+    DeliveryAddress: {
       Country: 'GBR',
       Property: '',
       Postcode: '',
@@ -60,8 +60,8 @@ export default function HomePage() {
 
     // Prepare request body
     const order = {
-      CollectionAddress: { ...formData.collection },
-      DeliveryAddress: { ...formData.delivery },
+      CollectionAddress: { ...formData.CollectionAddress },
+      DeliveryAddress: { ...formData.DeliveryAddress },
       Parcels: [
         {
           Value: parseFloat(formData.parcel.Value),
@@ -123,8 +123,8 @@ export default function HomePage() {
               key={field}
               type="text"
               placeholder={field}
-              value={formData.collection[field as keyof typeof formData.collection]}
-              onChange={(e) => handleInputChange('collection', field, e.target.value)}
+              value={formData.CollectionAddress[field as keyof typeof formData.CollectionAddress]}
+              onChange={(e) => handleInputChange('CollectionAddress', field, e.target.value)}
               className="w-full mb-2 p-2 border rounded"
               required
             />
@@ -139,8 +139,8 @@ export default function HomePage() {
               key={field}
               type="text"
               placeholder={field}
-              value={formData.delivery[field as keyof typeof formData.delivery]}
-              onChange={(e) => handleInputChange('delivery', field, e.target.value)}
+              value={formData.DeliveryAddress[field as keyof typeof formData.DeliveryAddress]}
+              onChange={(e) => handleInputChange('DeliveryAddress', field, e.target.value)}
               className="w-full mb-2 p-2 border rounded"
               required
             />
