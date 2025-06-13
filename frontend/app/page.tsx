@@ -43,6 +43,7 @@ export default function Home() {
       setLoading(false);
     } catch (err) {
       setError('Failed to get quotes.');
+      setQuotes([]); // Reset quotes on error
       setLoading(false);
     }
   };
@@ -74,7 +75,7 @@ export default function Home() {
 
       {error && <p className="mb-4 text-red-500">{error}</p>}
 
-      {!quotes.length && (
+      {(!quotes || quotes.length === 0) && (
         <div className="space-y-4 mb-6">
           <h2 className="text-xl font-semibold">Order Details</h2>
 
