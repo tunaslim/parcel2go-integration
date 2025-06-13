@@ -26,7 +26,6 @@ export default function Home() {
       setLoading(true);
       setError('');
 
-      // Convert parcel string fields to numbers before sending
       const parsedOrder = {
         ...order,
         Parcels: order.Parcels.map(parcel => ({
@@ -43,7 +42,7 @@ export default function Home() {
       setLoading(false);
     } catch (err) {
       setError('Failed to get quotes.');
-      setQuotes([]); // Reset quotes on error
+      setQuotes([]);
       setLoading(false);
     }
   };
@@ -227,7 +226,9 @@ export default function Home() {
               <div>
                 <p><strong>{service.ProviderName}</strong></p>
                 <p>{service.Description}</p>
-                <p>Price: £{service.Price.ExcludingVat.toFixed(2)}</p>
+                <p className="font-bold text-green-600 text-lg mt-2">
+                  Total Price: £{service.Price.ExcludingVat.toFixed(2)}
+                </p>
               </div>
               <button
                 onClick={() => {
