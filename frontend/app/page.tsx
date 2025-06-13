@@ -219,7 +219,7 @@ export default function Home() {
         </div>
       )}
 
-      {quotes.length > 0 && !label && (
+      {quotes?.length > 0 && !label && (
         <div className="space-y-4 mb-6">
           <h2 className="text-xl font-semibold">Select a Service</h2>
           {quotes.map((service, index) => (
