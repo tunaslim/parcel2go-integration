@@ -1,199 +1,173 @@
+// === frontend/app/page.tsx ===
+
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
-export default function HomePage() {
-  const [formData, setFormData] = useState({
-    CollectionAddress: {
-      Country: 'GBR',
-      Property: '',
-      Postcode: '',
-      Town: '',
-      VatStatus: 'Individual',
-    },
-    DeliveryAddress: {
-      Country: 'GBR',
-      Property: '',
-      Postcode: '',
-      Town: '',
-      VatStatus: 'Individual',
-    },
-    parcel: {
-      Value: '',
-      Weight: '',
-      Length: '',
-      Width: '',
-      Height: '',
-    },
+export default function Home() {
+  const [order, setOrder] = useState({
+    CollectionAddress: { Country: 'GBR', Property: '', Postcode: '', Town: '', VatStatus: 'Individual' },
+    DeliveryAddress: { Country: 'GBR', Property: '', Postcode: '', Town: '', VatStatus: 'Individual' },
+    Parcels: [{ Value: 4.99, Weight: 0.6, Length: 50, Width: 40, Height: 50 }],
+    Extras: [],
+    IncludedDropShopDistances: false,
+    ServiceFilter: { IncludeServiceTags: [], ExcludeServiceTags: [] },
   });
 
+  const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [label, setLabel] = useState(null);
   const [error, setError] = useState('');
-  const [labelUrl, setLabelUrl] = useState('');
 
-  const handleInputChange = (section: string, field: string, value: string) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [section]: {
-        ...prevData[section as keyof typeof prevData],
-        [field]: value,
-      },
-    }));
-  };
+  const apiBase = 'https://goodlife-production-3a0a.up.railway.app';
 
-  const handleParcelChange = (field: string, value: string) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      parcel: {
-        ...prevData.parcel,
-        [field]: value,
-      },
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setLabelUrl('');
-
-    // Prepare request body
-    const order = {
-      CollectionAddress: { ...formData.CollectionAddress },
-      DeliveryAddress: { ...formData.DeliveryAddress },
-      Parcels: [
-        {
-          Value: parseFloat(formData.parcel.Value),
-          Weight: parseFloat(formData.parcel.Weight),
-          Length: parseFloat(formData.parcel.Length),
-          Width: parseFloat(formData.parcel.Width),
-          Height: parseFloat(formData.parcel.Height),
-        },
-      ],
-      Extras: [
-        {
-          Type: 'ExtendedBaseCover',
-          Values: {
-            ExampleKey: 'ExampleValue',
-          },
-        },
-      ],
-      IncludedDropShopDistances: false,
-      ServiceFilter: {
-        IncludeServiceTags: [],
-        ExcludeServiceTags: [],
-      },
-    };
-
+  const getQuotes = async () => {
     try {
-      // Step 1: Get Quote
-      const quoteResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/get-quote`, { order });
-      console.log('Quote response:', quoteResponse.data);
+      setLoading(true);
+      setError('');
+      const response = await axios.post(`${apiBase}/get-quote`, { order });
+      setQuotes(response.data.Services);
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to get quotes.');
+      setLoading(false);
+    }
+  };
 
-      // Step 2: Create Label
-      const labelResponse = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/create-label`, { order });
-      console.log('Label response:', labelResponse.data);
+  const createLabel = async () => {
+    try {
+      setLoading(true);
+      setError('');
 
-      const url = labelResponse.data.labelUrl || labelResponse.data.labelPdfUrl;
+      const labelData = {
+        ...order,
+        SelectedService: selectedService,
+      };
 
-      if (url) {
-        setLabelUrl(url);
-      } else {
-        throw new Error('Label URL not found in response.');
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.error || err.message || 'An unknown error occurred');
-    } finally {
+      const response = await axios.post(`${apiBase}/create-label`, { labelData });
+      setLabel(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to create label.');
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4">Parcel2Go Quote & Label Form</h1>
+    <main className="p-6 max-w-2xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Parcel2Go Quote & Label Generator</h1>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
-        {/* Collection Address */}
-        <fieldset className="border p-4 rounded">
-          <legend className="font-semibold mb-2">Collection Address</legend>
-          {['Property', 'Postcode', 'Town'].map((field) => (
-            <input
-              key={field}
-              type="text"
-              placeholder={field}
-              value={formData.CollectionAddress[field as keyof typeof formData.CollectionAddress]}
-              onChange={(e) => handleInputChange('CollectionAddress', field, e.target.value)}
-              className="w-full mb-2 p-2 border rounded"
-              required
-            />
-          ))}
-        </fieldset>
+      {loading && <p className="mb-4">Loading...</p>}
 
-        {/* Delivery Address */}
-        <fieldset className="border p-4 rounded">
-          <legend className="font-semibold mb-2">Delivery Address</legend>
-          {['Property', 'Postcode', 'Town'].map((field) => (
-            <input
-              key={field}
-              type="text"
-              placeholder={field}
-              value={formData.DeliveryAddress[field as keyof typeof formData.DeliveryAddress]}
-              onChange={(e) => handleInputChange('DeliveryAddress', field, e.target.value)}
-              className="w-full mb-2 p-2 border rounded"
-              required
-            />
-          ))}
-        </fieldset>
+      {error && <p className="mb-4 text-red-500">{error}</p>}
 
-        {/* Parcel Details */}
-        <fieldset className="border p-4 rounded">
-          <legend className="font-semibold mb-2">Parcel Details</legend>
-          {['Value', 'Weight', 'Length', 'Width', 'Height'].map((field) => (
-            <input
-              key={field}
-              type="number"
-              step="any"
-              placeholder={field}
-              value={formData.parcel[field as keyof typeof formData.parcel]}
-              onChange={(e) => handleParcelChange(field, e.target.value)}
-              className="w-full mb-2 p-2 border rounded"
-              required
-            />
-          ))}
-        </fieldset>
+      {!quotes.length && (
+        <div className="space-y-4 mb-6">
+          <h2 className="text-xl font-semibold">Order Details</h2>
+          <input
+            className="border p-2 w-full"
+            placeholder="Collection Property"
+            value={order.CollectionAddress.Property}
+            onChange={(e) => setOrder({
+              ...order,
+              CollectionAddress: { ...order.CollectionAddress, Property: e.target.value },
+            })}
+          />
+          <input
+            className="border p-2 w-full"
+            placeholder="Collection Postcode"
+            value={order.CollectionAddress.Postcode}
+            onChange={(e) => setOrder({
+              ...order,
+              CollectionAddress: { ...order.CollectionAddress, Postcode: e.target.value },
+            })}
+          />
+          <input
+            className="border p-2 w-full"
+            placeholder="Collection Town"
+            value={order.CollectionAddress.Town}
+            onChange={(e) => setOrder({
+              ...order,
+              CollectionAddress: { ...order.CollectionAddress, Town: e.target.value },
+            })}
+          />
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Processing...' : 'Get Quote & Create Label'}
-        </button>
-      </form>
+          <input
+            className="border p-2 w-full"
+            placeholder="Delivery Property"
+            value={order.DeliveryAddress.Property}
+            onChange={(e) => setOrder({
+              ...order,
+              DeliveryAddress: { ...order.DeliveryAddress, Property: e.target.value },
+            })}
+          />
+          <input
+            className="border p-2 w-full"
+            placeholder="Delivery Postcode"
+            value={order.DeliveryAddress.Postcode}
+            onChange={(e) => setOrder({
+              ...order,
+              DeliveryAddress: { ...order.DeliveryAddress, Postcode: e.target.value },
+            })}
+          />
+          <input
+            className="border p-2 w-full"
+            placeholder="Delivery Town"
+            value={order.DeliveryAddress.Town}
+            onChange={(e) => setOrder({
+              ...order,
+              DeliveryAddress: { ...order.DeliveryAddress, Town: e.target.value },
+            })}
+          />
 
-      {/* Error Display */}
-      {error && (
-        <div className="mt-4 text-red-600">
-          <p>Error: {error}</p>
+          <button
+            onClick={getQuotes}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Get Quotes
+          </button>
         </div>
       )}
 
-      {/* Label Download */}
-      {labelUrl && (
-        <div className="mt-4">
+      {quotes.length > 0 && !label && (
+        <div className="space-y-4 mb-6">
+          <h2 className="text-xl font-semibold">Select a Service</h2>
+          {quotes.map((service, index) => (
+            <div key={index} className="border p-4 rounded flex justify-between items-center">
+              <div>
+                <p><strong>{service.ProviderName}</strong></p>
+                <p>{service.Description}</p>
+                <p>Price: £{service.Price.ExcludingVat.toFixed(2)}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedService(service);
+                  createLabel();
+                }}
+                className="bg-green-500 text-white px-4 py-2 rounded"
+              >
+                Select
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {label && (
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Label Created!</h2>
           <a
-            href={labelUrl}
+            href={label.ShipmentLabels[0].LabelUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-green-600 underline"
+            className="bg-purple-500 text-white px-4 py-2 rounded"
           >
             Download Label
           </a>
         </div>
       )}
-    </div>
+    </main>
   );
 }
