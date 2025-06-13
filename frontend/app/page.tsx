@@ -1,3 +1,5 @@
+import './styles.css';
+
 'use client';
 
 import { useState } from 'react';
