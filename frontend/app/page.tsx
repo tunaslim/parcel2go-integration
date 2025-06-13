@@ -1,5 +1,3 @@
-// === frontend/app/page.tsx ===
-
 'use client';
 
 import { useState } from 'react';
@@ -7,8 +5,8 @@ import axios from 'axios';
 
 export default function Home() {
   const [order, setOrder] = useState({
-    CollectionAddress: { Country: 'GBR', Property: '', Postcode: '', Town: '', VatStatus: 'Individual' },
-    DeliveryAddress: { Country: 'GBR', Property: '', Postcode: '', Town: '', VatStatus: 'Individual' },
+    CollectionAddress: { Country: '', Property: '', Postcode: '', Town: '', VatStatus: 'Individual' },
+    DeliveryAddress: { Country: '', Property: '', Postcode: '', Town: '', VatStatus: 'Individual' },
     Parcels: [{ Value: 4.99, Weight: 0.6, Length: 50, Width: 40, Height: 50 }],
     Extras: [],
     IncludedDropShopDistances: false,
@@ -66,6 +64,18 @@ export default function Home() {
       {!quotes.length && (
         <div className="space-y-4 mb-6">
           <h2 className="text-xl font-semibold">Order Details</h2>
+
+          {/* Collection Address */}
+          <h3 className="font-semibold">Collection Address</h3>
+          <input
+            className="border p-2 w-full"
+            placeholder="Collection Country (e.g., GBR)"
+            value={order.CollectionAddress.Country}
+            onChange={(e) => setOrder({
+              ...order,
+              CollectionAddress: { ...order.CollectionAddress, Country: e.target.value },
+            })}
+          />
           <input
             className="border p-2 w-full"
             placeholder="Collection Property"
@@ -94,6 +104,17 @@ export default function Home() {
             })}
           />
 
+          {/* Delivery Address */}
+          <h3 className="font-semibold mt-4">Delivery Address</h3>
+          <input
+            className="border p-2 w-full"
+            placeholder="Delivery Country (e.g., GBR)"
+            value={order.DeliveryAddress.Country}
+            onChange={(e) => setOrder({
+              ...order,
+              DeliveryAddress: { ...order.DeliveryAddress, Country: e.target.value },
+            })}
+          />
           <input
             className="border p-2 w-full"
             placeholder="Delivery Property"
