@@ -38,8 +38,7 @@ export default function Home() {
       };
 
       const response = await axios.post(`${apiBase}/get-quote`, { order: parsedOrder });
-      const sortedQuotes = response.data.Services.sort((a, b) => a.TotalPrice - b.TotalPrice);
-      setQuotes(sortedQuotes);
+      setQuotes(response.data.Quotes);
       setLoading(false);
     } catch (err) {
       setError('Failed to get quotes.');
@@ -219,42 +218,39 @@ export default function Home() {
         </div>
       )}
 
-{quotes?.length > 0 && !label && (
+      {quotes?.length > 0 && !label && (
   <div className="space-y-4 mb-6">
     <h2 className="text-xl font-semibold">Select a Service</h2>
-    {quotes
-      .slice() // to avoid mutating the original state
-      .sort((a, b) => a.TotalPrice - b.TotalPrice)
-      .map((quote: any, index: number) => {
-        const service = quote.Service;
+    {quotes.map((quote: any, index: number) => {
+      const service = quote.Service;
 
-        return (
-          <div key={index} className="border p-4 rounded flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              {/* Service Logo */}
-              <img src={service.Links.ImageSmall} alt={service.Name} className="w-16 h-16 object-contain" />
+      return (
+        <div key={index} className="border p-4 rounded flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            {/* Service Logo */}
+            <img src={service.Links.ImageSmall} alt={service.Name} className="w-16 h-16 object-contain" />
 
-              <div>
-                <p className="font-bold">{service.CourierName} - {service.Name}</p>
-                <p>{service.ShortDescriptions}</p>
-                <p>Price (excl. VAT): £{quote.TotalPriceExVat.toFixed(2)}</p>
-                <p className="font-bold text-green-600">Total Price: £{quote.TotalPrice.toFixed(2)}</p>
-                <p className="text-gray-600 text-sm mt-2">Estimated Delivery: {new Date(quote.EstimatedDeliveryDate).toLocaleDateString()}</p>
-              </div>
+            <div>
+              <p className="font-bold">{service.CourierName} - {service.Name}</p>
+              <p>{service.ShortDescriptions}</p>
+              <p>Price (excl. VAT): £{quote.TotalPriceExVat.toFixed(2)}</p>
+              <p className="font-bold text-green-600">Total Price: £{quote.TotalPrice.toFixed(2)}</p>
+              <p className="text-gray-600 text-sm mt-2">Estimated Delivery: {new Date(quote.EstimatedDeliveryDate).toLocaleDateString()}</p>
             </div>
-
-            <button
-              onClick={() => {
-                setSelectedService(quote);
-                createLabel();
-              }}
-              className="bg-green-500 text-white px-4 py-2 rounded"
-            >
-              Select
-            </button>
           </div>
-        );
-      })}
+
+          <button
+            onClick={() => {
+              setSelectedService(quote);
+              createLabel();
+            }}
+            className="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Select
+          </button>
+        </div>
+      );
+    })}
   </div>
 )}
 
