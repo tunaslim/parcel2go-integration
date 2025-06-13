@@ -1,4 +1,5 @@
 // This is the root layout required by Next.js 13+ for the app directory
+import './styles.css';
 
 export const metadata = {
   title: 'Parcel2Go Integration',
