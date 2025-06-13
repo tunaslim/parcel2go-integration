@@ -1,5 +1,3 @@
-// === frontend/app/page.tsx ===
-
 'use client';
 
 import { useState } from 'react';
@@ -27,7 +25,20 @@ export default function Home() {
     try {
       setLoading(true);
       setError('');
-      const response = await axios.post(`${apiBase}/get-quote`, { order });
+
+      // Convert parcel string fields to numbers before sending
+      const parsedOrder = {
+        ...order,
+        Parcels: order.Parcels.map(parcel => ({
+          Value: parseFloat(parcel.Value) || 0,
+          Weight: parseFloat(parcel.Weight) || 0,
+          Length: parseFloat(parcel.Length) || 0,
+          Width: parseFloat(parcel.Width) || 0,
+          Height: parseFloat(parcel.Height) || 0,
+        })),
+      };
+
+      const response = await axios.post(`${apiBase}/get-quote`, { order: parsedOrder });
       setQuotes(response.data.Services);
       setLoading(false);
     } catch (err) {
@@ -154,7 +165,7 @@ export default function Home() {
             value={order.Parcels[0].Value}
             onChange={(e) => setOrder({
               ...order,
-              Parcels: [{ ...order.Parcels[0], Value: parseFloat(e.target.value) }],
+              Parcels: [{ ...order.Parcels[0], Value: e.target.value }],
             })}
           />
           <input
@@ -164,7 +175,7 @@ export default function Home() {
             value={order.Parcels[0].Weight}
             onChange={(e) => setOrder({
               ...order,
-              Parcels: [{ ...order.Parcels[0], Weight: parseFloat(e.target.value) }],
+              Parcels: [{ ...order.Parcels[0], Weight: e.target.value }],
             })}
           />
           <input
@@ -174,7 +185,7 @@ export default function Home() {
             value={order.Parcels[0].Length}
             onChange={(e) => setOrder({
               ...order,
-              Parcels: [{ ...order.Parcels[0], Length: parseFloat(e.target.value) }],
+              Parcels: [{ ...order.Parcels[0], Length: e.target.value }],
             })}
           />
           <input
@@ -184,7 +195,7 @@ export default function Home() {
             value={order.Parcels[0].Width}
             onChange={(e) => setOrder({
               ...order,
-              Parcels: [{ ...order.Parcels[0], Width: parseFloat(e.target.value) }],
+              Parcels: [{ ...order.Parcels[0], Width: e.target.value }],
             })}
           />
           <input
@@ -194,7 +205,7 @@ export default function Home() {
             value={order.Parcels[0].Height}
             onChange={(e) => setOrder({
               ...order,
-              Parcels: [{ ...order.Parcels[0], Height: parseFloat(e.target.value) }],
+              Parcels: [{ ...order.Parcels[0], Height: e.target.value }],
             })}
           />
 
