@@ -1,9 +1,8 @@
-import './styles.css';
-
 'use client';
 
 import { useState } from 'react';
 import axios from 'axios';
+import './styles.css';
 
 export default function Home() {
   const [order, setOrder] = useState({
