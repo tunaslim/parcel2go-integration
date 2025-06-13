@@ -1,3 +1,5 @@
+// === frontend/app/page.tsx ===
+
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +9,7 @@ export default function Home() {
   const [order, setOrder] = useState({
     CollectionAddress: { Country: '', Property: '', Postcode: '', Town: '', VatStatus: 'Individual' },
     DeliveryAddress: { Country: '', Property: '', Postcode: '', Town: '', VatStatus: 'Individual' },
-    Parcels: [{ Value: 4.99, Weight: 0.6, Length: 50, Width: 40, Height: 50 }],
+    Parcels: [{ Value: '', Weight: '', Length: '', Width: '', Height: '' }],
     Extras: [],
     IncludedDropShopDistances: false,
     ServiceFilter: { IncludeServiceTags: [], ExcludeServiceTags: [] },
@@ -140,6 +142,59 @@ export default function Home() {
             onChange={(e) => setOrder({
               ...order,
               DeliveryAddress: { ...order.DeliveryAddress, Town: e.target.value },
+            })}
+          />
+
+          {/* Parcel Details */}
+          <h3 className="font-semibold mt-4">Parcel Details</h3>
+          <input
+            className="border p-2 w-full"
+            placeholder="Parcel Value"
+            type="number"
+            value={order.Parcels[0].Value}
+            onChange={(e) => setOrder({
+              ...order,
+              Parcels: [{ ...order.Parcels[0], Value: parseFloat(e.target.value) }],
+            })}
+          />
+          <input
+            className="border p-2 w-full"
+            placeholder="Parcel Weight (kg)"
+            type="number"
+            value={order.Parcels[0].Weight}
+            onChange={(e) => setOrder({
+              ...order,
+              Parcels: [{ ...order.Parcels[0], Weight: parseFloat(e.target.value) }],
+            })}
+          />
+          <input
+            className="border p-2 w-full"
+            placeholder="Parcel Length (cm)"
+            type="number"
+            value={order.Parcels[0].Length}
+            onChange={(e) => setOrder({
+              ...order,
+              Parcels: [{ ...order.Parcels[0], Length: parseFloat(e.target.value) }],
+            })}
+          />
+          <input
+            className="border p-2 w-full"
+            placeholder="Parcel Width (cm)"
+            type="number"
+            value={order.Parcels[0].Width}
+            onChange={(e) => setOrder({
+              ...order,
+              Parcels: [{ ...order.Parcels[0], Width: parseFloat(e.target.value) }],
+            })}
+          />
+          <input
+            className="border p-2 w-full"
+            placeholder="Parcel Height (cm)"
+            type="number"
+            value={order.Parcels[0].Height}
+            onChange={(e) => setOrder({
+              ...order,
+              Parcels: [{ ...order.Parcels[0], Height: parseFloat(e.target.value) }],
             })}
           />
 
