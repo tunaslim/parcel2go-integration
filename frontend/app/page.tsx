@@ -219,34 +219,49 @@ export default function Home() {
       )}
 
 {quotes?.length > 0 && !label && (
-  <div className="space-y-4 mb-6">
-    <h2>Select a Service</h2>
-    <div className="service-grid">
-      {quotes
-        .slice()
-        .sort((a, b) => a.TotalPrice - b.TotalPrice)
-        .map((quote, index) => {
-          const service = quote.Service;
-
-          return (
-            <div key={index} className="quote-card">
-              <div>
-                <img src={service.Links.ImageSmall} alt={service.Name} />
-              </div>
-              <div style={{ flex: 1, marginLeft: '16px' }}>
-                <p><strong>{service.CourierName} - {service.Name}</strong></p>
-                <p>Price (excl. VAT): £{quote.TotalPriceExVat.toFixed(2)}</p>
-                <p style={{ color: 'green', fontWeight: 'bold' }}>Total Price: £{quote.TotalPrice.toFixed(2)}</p>
-                <p style={{ fontSize: '12px', marginTop: '8px' }}>Estimated Delivery: {new Date(quote.EstimatedDeliveryDate).toLocaleDateString()}</p>
-                <button onClick={() => { setSelectedService(quote); createLabel(); }} style={{ marginTop: '10px' }}>
-                  Select
-                </button>
-              </div>
-            </div>
-          );
-        })}
-    </div>
-  </div>
+  <table className="w-full border-collapse">
+  <tbody>
+    {quotes
+      .slice()
+      .sort((a, b) => a.TotalPrice - b.TotalPrice)
+      .reduce((rows, quote, index) => {
+        if (index % 3 === 0) rows.push([]);
+        rows[rows.length - 1].push(quote);
+        return rows;
+      }, [])
+      .map((row, rowIndex) => (
+        <tr key={rowIndex}>
+          {row.map((quote, colIndex) => {
+            const service = quote.Service;
+            return (
+              <td key={colIndex} className="border p-4 align-top">
+                <div className="flex flex-col justify-between h-full">
+                  <div className="flex items-center space-x-4">
+                    <img src={service.Links.ImageSmall} alt={service.Name} className="w-16 h-16 object-contain" />
+                    <div>
+                      <p className="font-bold">{service.CourierName} - {service.Name}</p>
+                      <p>Price (excl. VAT): £{quote.TotalPriceExVat.toFixed(2)}</p>
+                      <p className="font-bold text-green-600">Total Price: £{quote.TotalPrice.toFixed(2)}</p>
+                      <p className="text-gray-600 text-sm mt-2">Estimated Delivery: {new Date(quote.EstimatedDeliveryDate).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedService(quote);
+                      createLabel();
+                    }}
+                    className="bg-green-500 text-white px-4 py-2 rounded mt-4"
+                  >
+                    Select
+                  </button>
+                </div>
+              </td>
+            );
+          })}
+        </tr>
+      ))}
+  </tbody>
+</table>
 )}
 
       {label && (
