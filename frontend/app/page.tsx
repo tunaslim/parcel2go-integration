@@ -18,7 +18,6 @@ export default function Home() {
   const [selectedService, setSelectedService] = useState(null);
   const [label, setLabel] = useState(null);
   const [error, setError] = useState('');
-  const [expandedIndexes, setExpandedIndexes] = useState<number[]>([]);
 
   const apiBase = 'https://goodlife-production-3a0a.up.railway.app';
 
@@ -65,14 +64,6 @@ export default function Home() {
     } catch (err) {
       setError('Failed to create label.');
       setLoading(false);
-    }
-  };
-
-  const toggleDescription = (index: number) => {
-    if (expandedIndexes.includes(index)) {
-      setExpandedIndexes(expandedIndexes.filter(i => i !== index));
-    } else {
-      setExpandedIndexes([...expandedIndexes, index]);
     }
   };
 
