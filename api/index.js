@@ -7,12 +7,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Root route
 app.get('/', (req, res) => {
   res.send('Parcel2Go API is running 🚀');
 });
 
-// Get OAuth2 token from Parcel2Go (Production)
+// Get OAuth2 token from Parcel2Go (Production) with logging
 async function getParcel2GoToken() {
   try {
     const payload = new URLSearchParams({
@@ -22,13 +21,26 @@ async function getParcel2GoToken() {
       client_secret: process.env.PARCEL2GO_CLIENT_SECRET,
     });
 
-    const response = await axios.post('https://www.parcel2go.com/auth/connect/token', payload.toString(), {
+    const tokenUrl = 'https://www.parcel2go.com/auth/connect/token';
+
+    // Log request details
+    console.log('Sending token request to:', tokenUrl);
+    console.log('Request payload:', payload.toString());
+    console.log('Request headers:', {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': 'insomnia/5.14.6',
+      'Accept': '*/*',
+    });
+
+    const response = await axios.post(tokenUrl, payload.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'insomnia/5.14.6',
         'Accept': '*/*',
       },
     });
+
+    console.log('Token response:', response.data);
 
     return response.data.access_token;
   } catch (error) {
@@ -37,7 +49,6 @@ async function getParcel2GoToken() {
   }
 }
 
-// Get Quote Route (Production)
 app.post('/get-quote', async (req, res) => {
   try {
     const { order } = req.body;
@@ -45,13 +56,19 @@ app.post('/get-quote', async (req, res) => {
     // Get access token
     const token = await getParcel2GoToken();
 
-    // Call Parcel2Go Quotes API
-    const response = await axios.post('https://www.parcel2go.com/api/quotes', order, {
+    const quoteUrl = 'https://www.parcel2go.com/api/quotes';
+
+    console.log('Sending quote request to:', quoteUrl);
+    console.log('Quote request payload:', JSON.stringify(order, null, 2));
+
+    const response = await axios.post(quoteUrl, order, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });
+
+    console.log('Quote response:', response.data);
 
     res.json(response.data);
   } catch (error) {
@@ -60,15 +77,12 @@ app.post('/get-quote', async (req, res) => {
   }
 });
 
-// Create Label Route (if needed)
 app.post('/create-label', async (req, res) => {
   try {
     const { labelData } = req.body;
 
-    // Get access token
     const token = await getParcel2GoToken();
 
-    // Call Parcel2Go Create Label API (production endpoint assumed)
     const response = await axios.post('https://www.parcel2go.com/api/shipments', labelData, {
       headers: {
         'Authorization': `Bearer ${token}`,
