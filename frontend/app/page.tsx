@@ -228,45 +228,44 @@ export default function Home() {
         </div>
       )}
 
-      {quotes?.length > 0 && !label && (
-        <div className="space-y-4 mb-6">
-          <h2 className="text-xl font-semibold">Select a Service</h2>
-          {quotes.map((service, index) => (
-            <div key={index} className="border p-4 rounded flex flex-col space-y-2">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-4">
-                  <img src={service.Service.Links.ImageSmall} alt={service.Service.CourierName} className="w-16 h-16 object-contain" />
-                  <div>
-                    <p><strong>{service.Service.CourierName}</strong> - {service.Service.Name}</p>
-                    <p className="text-gray-600">Price: £{service.TotalPrice.toFixed(2)}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setSelectedService(service);
-                    createLabel();
-                  }}
-                  className="bg-green-500 text-white px-4 py-2 rounded"
-                >
-                  Select
-                </button>
-              </div>
+{quotes?.length > 0 && !label && (
+  <div className="space-y-4 mb-6">
+    <h2 className="text-xl font-semibold">Select a Service</h2>
+    {quotes
+      .slice() // to avoid mutating the original state
+      .sort((a, b) => a.TotalPrice - b.TotalPrice)
+      .map((quote: any, index: number) => {
+        const service = quote.Service;
+
+        return (
+          <div key={index} className="border p-4 rounded flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              {/* Service Logo */}
+              <img src={service.Links.ImageSmall} alt={service.Name} className="w-16 h-16 object-contain" />
 
               <div>
-                <button
-                  onClick={() => toggleDescription(index)}
-                  className="text-blue-500 underline text-sm"
-                >
-                  {expandedIndexes.includes(index) ? 'Hide Description' : 'Show Description'}
-                </button>
-                {expandedIndexes.includes(index) && (
-                  <p className="mt-2 text-gray-700">{service.Service.ShortDescriptions}</p>
-                )}
+                <p className="font-bold">{service.CourierName} - {service.Name}</p>
+                <p>{service.ShortDescriptions}</p>
+                <p>Price (excl. VAT): £{quote.TotalPriceExVat.toFixed(2)}</p>
+                <p className="font-bold text-green-600">Total Price: £{quote.TotalPrice.toFixed(2)}</p>
+                <p className="text-gray-600 text-sm mt-2">Estimated Delivery: {new Date(quote.EstimatedDeliveryDate).toLocaleDateString()}</p>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+
+            <button
+              onClick={() => {
+                setSelectedService(quote);
+                createLabel();
+              }}
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Select
+            </button>
+          </div>
+        );
+      })}
+  </div>
+)}
 
       {label && (
         <div>
