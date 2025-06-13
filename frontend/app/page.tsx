@@ -65,6 +65,15 @@ export default function Home() {
       setLoading(false);
     }
   };
+      const [expandedIndexes, setExpandedIndexes] = useState<number[]>([]);
+
+      const toggleDescription = (index: number) => {
+      if (expandedIndexes.includes(index)) {
+      setExpandedIndexes(expandedIndexes.filter(i => i !== index));
+    } else {
+      setExpandedIndexes([...expandedIndexes, index]);
+    }
+  };
 
   return (
     <main className="p-6 max-w-2xl mx-auto">
@@ -226,7 +235,6 @@ export default function Home() {
       .sort((a, b) => a.TotalPrice - b.TotalPrice)
       .map((quote: any, index: number) => {
         const service = quote.Service;
-        const [isExpanded, setIsExpanded] = useState(false);
 
         return (
           <div key={index} className="border p-4 rounded flex justify-between items-center">
@@ -239,12 +247,14 @@ export default function Home() {
 
                 {/* Expandable Description */}
                 <div className="text-sm mt-1">
-                  {isExpanded ? service.ShortDescriptions : `${service.ShortDescriptions.substring(0, 50)}...`}
+                  {expandedIndexes.includes(index)
+                    ? service.ShortDescriptions
+                    : `${service.ShortDescriptions.substring(0, 50)}...`}
                   <button
-                    onClick={() => setIsExpanded(!isExpanded)}
+                    onClick={() => toggleDescription(index)}
                     className="text-blue-500 ml-2"
                   >
-                    {isExpanded ? 'Read Less' : 'Read More'}
+                    {expandedIndexes.includes(index) ? 'Read Less' : 'Read More'}
                   </button>
                 </div>
 
@@ -253,6 +263,21 @@ export default function Home() {
                 <p className="text-gray-600 text-sm mt-2">Estimated Delivery: {new Date(quote.EstimatedDeliveryDate).toLocaleDateString()}</p>
               </div>
             </div>
+
+            <button
+              onClick={() => {
+                setSelectedService(quote);
+                createLabel();
+              }}
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Select
+            </button>
+          </div>
+        );
+      })}
+  </div>
+)}
 
             <button
               onClick={() => {
