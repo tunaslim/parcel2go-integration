@@ -79,10 +79,10 @@ export default function Home() {
           <h2 className="text-xl font-semibold">Order Details</h2>
 
           {/* Collection Address */}
-          <h3 className="font-semibold">Collection Address</h3>
+          <h3 className="font-semibold">Sender Address</h3>
           <input
             className="border p-2 w-full"
-            placeholder="Collection Country (e.g., GBR)"
+            placeholder="Country (e.g., GBR)"
             value={order.CollectionAddress.Country}
             onChange={(e) => setOrder({
               ...order,
@@ -121,7 +121,7 @@ export default function Home() {
           <h3 className="font-semibold mt-4">Delivery Address</h3>
           <input
             className="border p-2 w-full"
-            placeholder="Delivery Country (e.g., GBR)"
+            placeholder="Country (e.g., GBR)"
             value={order.DeliveryAddress.Country}
             onChange={(e) => setOrder({
               ...order,
