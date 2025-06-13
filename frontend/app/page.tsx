@@ -18,6 +18,7 @@ export default function Home() {
   const [selectedService, setSelectedService] = useState(null);
   const [label, setLabel] = useState(null);
   const [error, setError] = useState('');
+  const [expandedIndexes, setExpandedIndexes] = useState<number[]>([]);
 
   const apiBase = 'https://goodlife-production-3a0a.up.railway.app';
 
@@ -38,7 +39,8 @@ export default function Home() {
       };
 
       const response = await axios.post(`${apiBase}/get-quote`, { order: parsedOrder });
-      setQuotes(response.data.Quotes);
+      const sortedQuotes = response.data.Services.sort((a, b) => a.TotalPrice - b.TotalPrice);
+      setQuotes(sortedQuotes);
       setLoading(false);
     } catch (err) {
       setError('Failed to get quotes.');
@@ -65,10 +67,9 @@ export default function Home() {
       setLoading(false);
     }
   };
-      const [expandedIndexes, setExpandedIndexes] = useState<number[]>([]);
 
-      const toggleDescription = (index: number) => {
-      if (expandedIndexes.includes(index)) {
+  const toggleDescription = (index: number) => {
+    if (expandedIndexes.includes(index)) {
       setExpandedIndexes(expandedIndexes.filter(i => i !== index));
     } else {
       setExpandedIndexes([...expandedIndexes, index]);
@@ -227,72 +228,45 @@ export default function Home() {
         </div>
       )}
 
-{quotes?.length > 0 && !label && (
-  <div className="space-y-4 mb-6">
-    <h2 className="text-xl font-semibold">Select a Service</h2>
-    {quotes
-      .slice()
-      .sort((a, b) => a.TotalPrice - b.TotalPrice)
-      .map((quote: any, index: number) => {
-        const service = quote.Service;
-
-        return (
-          <div key={index} className="border p-4 rounded flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              {/* Service Logo */}
-              <img src={service.Links.ImageSmall} alt={service.Name} className="w-16 h-16 object-contain" />
+      {quotes?.length > 0 && !label && (
+        <div className="space-y-4 mb-6">
+          <h2 className="text-xl font-semibold">Select a Service</h2>
+          {quotes.map((service, index) => (
+            <div key={index} className="border p-4 rounded flex flex-col space-y-2">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-4">
+                  <img src={service.Service.Links.ImageSmall} alt={service.Service.CourierName} className="w-16 h-16 object-contain" />
+                  <div>
+                    <p><strong>{service.Service.CourierName}</strong> - {service.Service.Name}</p>
+                    <p className="text-gray-600">Price: £{service.TotalPrice.toFixed(2)}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedService(service);
+                    createLabel();
+                  }}
+                  className="bg-green-500 text-white px-4 py-2 rounded"
+                >
+                  Select
+                </button>
+              </div>
 
               <div>
-                <p className="font-bold">{service.CourierName} - {service.Name}</p>
-
-                {/* Expandable Description */}
-                <div className="text-sm mt-1">
-                  {expandedIndexes.includes(index)
-                    ? service.ShortDescriptions
-                    : `${service.ShortDescriptions.substring(0, 50)}...`}
-                  <button
-                    onClick={() => toggleDescription(index)}
-                    className="text-blue-500 ml-2"
-                  >
-                    {expandedIndexes.includes(index) ? 'Read Less' : 'Read More'}
-                  </button>
-                </div>
-
-                <p>Price (excl. VAT): £{quote.TotalPriceExVat.toFixed(2)}</p>
-                <p className="font-bold text-green-600">Total Price: £{quote.TotalPrice.toFixed(2)}</p>
-                <p className="text-gray-600 text-sm mt-2">Estimated Delivery: {new Date(quote.EstimatedDeliveryDate).toLocaleDateString()}</p>
+                <button
+                  onClick={() => toggleDescription(index)}
+                  className="text-blue-500 underline text-sm"
+                >
+                  {expandedIndexes.includes(index) ? 'Hide Description' : 'Show Description'}
+                </button>
+                {expandedIndexes.includes(index) && (
+                  <p className="mt-2 text-gray-700">{service.Service.ShortDescriptions}</p>
+                )}
               </div>
             </div>
-
-            <button
-              onClick={() => {
-                setSelectedService(quote);
-                createLabel();
-              }}
-              className="bg-green-500 text-white px-4 py-2 rounded"
-            >
-              Select
-            </button>
-          </div>
-        );
-      })}
-  </div>
-)}
-
-            <button
-              onClick={() => {
-                setSelectedService(quote);
-                createLabel();
-              }}
-              className="bg-green-500 text-white px-4 py-2 rounded"
-            >
-              Select
-            </button>
-          </div>
-        );
-      })}
-  </div>
-)}
+          ))}
+        </div>
+      )}
 
       {label && (
         <div>
