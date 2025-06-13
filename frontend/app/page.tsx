@@ -218,14 +218,15 @@ export default function Home() {
         </div>
       )}
 
-      {quotes?.length > 0 && !label && (
+{quotes?.length > 0 && !label && (
   <div className="space-y-4 mb-6">
     <h2 className="text-xl font-semibold">Select a Service</h2>
     {quotes
-      .slice() // to avoid mutating the original state
+      .slice()
       .sort((a, b) => a.TotalPrice - b.TotalPrice)
       .map((quote: any, index: number) => {
         const service = quote.Service;
+        const [isExpanded, setIsExpanded] = useState(false);
 
         return (
           <div key={index} className="border p-4 rounded flex justify-between items-center">
@@ -235,7 +236,18 @@ export default function Home() {
 
               <div>
                 <p className="font-bold">{service.CourierName} - {service.Name}</p>
-                <p>{service.ShortDescriptions}</p>
+
+                {/* Expandable Description */}
+                <div className="text-sm mt-1">
+                  {isExpanded ? service.ShortDescriptions : `${service.ShortDescriptions.substring(0, 50)}...`}
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="text-blue-500 ml-2"
+                  >
+                    {isExpanded ? 'Read Less' : 'Read More'}
+                  </button>
+                </div>
+
                 <p>Price (excl. VAT): £{quote.TotalPriceExVat.toFixed(2)}</p>
                 <p className="font-bold text-green-600">Total Price: £{quote.TotalPrice.toFixed(2)}</p>
                 <p className="text-gray-600 text-sm mt-2">Estimated Delivery: {new Date(quote.EstimatedDeliveryDate).toLocaleDateString()}</p>
